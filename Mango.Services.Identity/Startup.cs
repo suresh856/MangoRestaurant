@@ -1,3 +1,4 @@
+using Duende.IdentityServer.Services;
 using Mango.Services.Identity.DbContext;
 using Mango.Services.Identity.Initializer;
 using Mango.Services.Identity.Models;
@@ -29,7 +30,7 @@ namespace Mango.Services.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                  options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
@@ -46,14 +47,14 @@ namespace Mango.Services.Identity
             .AddAspNetIdentity<ApplicationUser>();
 
             services.AddScoped<IDbInitializer, DbInitializer>();
-            //services.AddScoped<IProfileService, ProfileService>();
+          //  services.AddScoped<IProfileService, ProfileService>();
             builder.AddDeveloperSigningCredential();
 
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,IDbInitializer dbInitializer)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
