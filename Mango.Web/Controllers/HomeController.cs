@@ -1,8 +1,10 @@
 ﻿using Mango.Web.Models;
+using Mango.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,16 +16,39 @@ namespace Mango.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IProductService _productService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IProductService productService)
         {
-            _logger = logger;
+            this._productService = productService;
         }
 
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            return View();
+            List<ProductDto> productDtos = new();
+            var response = await _productService.GetAllProductsAsync<ResponseDto>("");
+            if(response!=null&&response.IsSuccess)
+            {
+                productDtos = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(response.Result));
+            }
+
+            return View(productDtos);
         }
+
+        [Authorize]
+        public async Task<IActionResult> Details(int productId)
+        {
+            ProductDto productDto = new();
+            var response = await _productService.GetProductByIdAsync<ResponseDto>("",productId);
+            if (response != null && response.IsSuccess)
+            {
+                productDto = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
+            }
+
+            return View(productDto);
+        }
+
 
         public IActionResult Privacy()
         {
@@ -37,7 +62,7 @@ namespace Mango.Web.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Login()
+        public IActionResult Login()
         {
             return RedirectToAction(nameof(Index));
         }
