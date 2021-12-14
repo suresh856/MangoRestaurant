@@ -17,10 +17,12 @@ namespace Mango.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
+        private readonly ICartService _cartService;
 
-        public HomeController(IProductService productService)
+        public HomeController(IProductService productService,ICartService cartService)
         {
             this._productService = productService;
+             this._cartService = cartService;
         }
 
 
@@ -44,6 +46,41 @@ namespace Mango.Web.Controllers
             if (response != null && response.IsSuccess)
             {
                 productDto = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(response.Result));
+            }
+
+            return View(productDto);
+        }
+
+        [HttpPost]
+        [ActionName("Details")]
+        [Authorize]
+        public async Task<IActionResult> DetailsPost(ProductDto productDto)
+        {
+            CartDto cartDto = new()
+            {
+                CartHeader = new CartHeaderDto
+                {
+                    UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value
+                }
+            };
+            CartDetailsDto cartDetailsDto = new CartDetailsDto()
+            {
+                Count = productDto.Count,
+                ProductId = productDto.ProductId
+            };
+
+            // you can get product object from service or from hidden values or post of method.
+            cartDetailsDto.Product = productDto;
+            List<CartDetailsDto> cartDetailsDtos = new();
+            cartDetailsDtos.Add(cartDetailsDto);
+            cartDto.CartDetails = cartDetailsDtos;
+
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var addToCartResp = await _cartService.AddToCartAsync<ResponseDto>(cartDto, accessToken);
+
+            if(addToCartResp!=null&&addToCartResp.IsSuccess)
+            {
+                return RedirectToAction(nameof(Index));
             }
 
             return View(productDto);
