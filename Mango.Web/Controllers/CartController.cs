@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Mango.Web.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         private readonly IProductService _productService;
@@ -24,13 +25,11 @@ namespace Mango.Web.Controllers
             this._couponService = couponService;
         }
 
-        [Authorize]
         public async Task<IActionResult> CartIndex()
         {
             return View(await LoadCartDtoBasedOnLoggedInUser());
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
         {
@@ -46,7 +45,6 @@ namespace Mango.Web.Controllers
             return View();
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> RemoveCoupon(CartDto cartDto)
         {
@@ -61,6 +59,39 @@ namespace Mango.Web.Controllers
             }
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
+        {
+            return View(await LoadCartDtoBasedOnLoggedInUser());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Confirmation()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CartDto cartDto)
+        {
+            try
+            {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var response = await _cartService.Checkout<ResponseDto>(cartDto.CartHeader, accessToken);
+
+
+                return RedirectToAction(nameof(Confirmation));
+ 
+            }
+            catch(Exception)
+            {
+                return View(cartDto);
+            }
+
+        }
+
 
         public async Task<CartDto> LoadCartDtoBasedOnLoggedInUser()
         {
