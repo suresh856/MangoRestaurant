@@ -24,7 +24,7 @@ namespace Mango.Sevices.OrderAPI.Repository
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
 
                 throw;

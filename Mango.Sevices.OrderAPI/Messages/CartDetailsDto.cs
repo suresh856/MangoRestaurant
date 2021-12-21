@@ -1,4 +1,6 @@
-﻿namespace Mango.Sevices.OrderAPI.Messages
+﻿
+
+namespace Mango.Sevices.OrderAPI.Messages
 {
     public class CartDetailsDto
     {

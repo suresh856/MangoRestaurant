@@ -1,4 +1,5 @@
 using AutoMapper;
+using Mango.MessageBus;
 using Mango.Sevices.OrderAPI.DbContexts;
 using Mango.Sevices.OrderAPI.Extensions;
 using Mango.Sevices.OrderAPI.Messaging;
@@ -49,7 +50,7 @@ namespace Mango.Sevices.OrderAPI
             services.AddSingleton(new OrderRepository(optionBuilder.Options));
 
             services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
-
+            services.AddSingleton<IMessageBus, AzureServiceBusMessageBus>();
             services.AddControllers();
             services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options => {
                 options.Authority = "https://localhost:44303/";

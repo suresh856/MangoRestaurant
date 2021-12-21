@@ -30,4 +30,8 @@
     <Folder Include="Models\Dto\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Mango.MessageBus\Mango.MessageBus.csproj" />
+  </ItemGroup>
+
 </Project>

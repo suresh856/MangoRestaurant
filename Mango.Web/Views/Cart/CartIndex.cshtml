@@ -1,5 +1,12 @@
 ﻿@model Mango.Web.Models.CartDto
-
+@if (Model == null || Model.CartHeader == null)
+{
+    <div>
+        <p>Please add items to cart.</p>
+    </div>
+}
+else
+{
 @if (Model.CartHeader != null & Model.CartDetails.Count() > 0)
 {
 
@@ -106,4 +113,4 @@ else
     <div>
         <p>Please add items to cart.</p>
     </div>
-}
+}}
