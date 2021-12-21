@@ -19,11 +19,13 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     {
         private readonly ICartRepository _cartRepository;
         private readonly IMessageBus _messageBus;
+        private readonly ICouponRepository _couponRepository;
         protected ResponseDto _responseDto;
-        public CartController(ICartRepository cartRepository,IMessageBus messageBus)
+        public CartController(ICartRepository cartRepository,IMessageBus messageBus,ICouponRepository couponRepository)
         {
             this._cartRepository = cartRepository;
             this._messageBus = messageBus;
+            this._couponRepository = couponRepository;
             _responseDto = new ResponseDto();
         }
 
@@ -150,6 +152,22 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 {
                     return BadRequest();
                 }
+
+                // checking for coupon code. if it is still valid or not
+                if(!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
+                {
+                    CouponDto couponDto = await _couponRepository.GetCoupon(cartDto.CartHeader.CouponCode);
+                    if(checkoutHeaderDto.DiscountTotal!=couponDto.DiscountAmount)
+                    {
+                        _responseDto.IsSuccess = false;
+                        _responseDto.ErrorMessages = new List<string>() { "Coupon price has chnaged,please confirm" };
+                        _responseDto.DisplayMessage = "Coupon price has chnaged,please confirm";
+                        return BadRequest(_responseDto);
+                    }
+                }
+
+
+
                 checkoutHeaderDto.CartDetails = cartDto.CartDetails;
 
                 //logic to add message to process order

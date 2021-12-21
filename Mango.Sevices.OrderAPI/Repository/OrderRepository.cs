@@ -17,22 +17,30 @@ namespace Mango.Sevices.OrderAPI.Repository
         }
         public async Task<bool> AddOrder(OrderHeader orderHeader)
         {
-            await using var _context = new ApplicationDbContext(_dbContext);
-            _context.OrderHeaders.Add(orderHeader);
-            await _context.SaveChangesAsync();
-            return true;
+            try
+            {
+                await using var _context = new ApplicationDbContext(_dbContext);
+                _context.OrderHeaders.Add(orderHeader);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public async Task<IEnumerable<OrderHeader>> GetOrderByUserId(string userId)
         {
             await using var _context = new ApplicationDbContext(_dbContext);
-            var result = await _context.OrderHeaders.Where(c=>c.UserId==userId).Include("OrderDetails").ToListAsync();
+            var result = await _context.OrderHeaders.Where(c => c.UserId == userId).Include("OrderDetails").ToListAsync();
             return result;
         }
 
         public async Task<IEnumerable<OrderHeader>> GetOrders()
         {
-            await using var _context  = new ApplicationDbContext(_dbContext);
+            await using var _context = new ApplicationDbContext(_dbContext);
             var result = await _context.OrderHeaders.Include("OrderDetails").ToListAsync();
             return result;
 
